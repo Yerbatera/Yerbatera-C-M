@@ -11,6 +11,9 @@ use App\Http\Controllers\VentaController;
 Route::get('/', function () { return view('login-roles'); });
 Route::post('/login', [LoginRolController::class, 'loginRapido'])->name('login.rapido');
 
+// -- Ruta Libre -- 
+Route::resource('ventas', VentaController::class);
+
 // --- RUTAS PROTEGIDAS CON AUTH ---
 Route::middleware(['auth'])->group(function () {
     
@@ -24,5 +27,5 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('balanza', BalanzaController::class);
     Route::resource('tareas', TareaController::class);
     Route::resource('procesos', ProcesoController::class);
-    Route::resource('ventas', VentaController::class);
+    
 });

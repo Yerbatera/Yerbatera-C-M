@@ -18,7 +18,7 @@ Route::post('/login', [LoginRolController::class, 'loginRapido'])->name('login.r
 Route::middleware(['auth'])->group(function () {
 
     // Dashboards (Las pantallas de los botones verdes)
-    Route::get('/gerente', [DashboardController::class, 'gerente'])->middleware('rol:gerente');
+    Route::get('/gerente', [DashboardController::class, 'gerente'])->middleware('rol:gerente')->name('gerente');
     Route::get('/administracion', [DashboardController::class, 'admin'])->middleware('rol:administracion');
     Route::get('/operario', [DashboardController::class, 'operario'])->middleware('rol:operario');
     Route::get('/yerbatero', [DashboardController::class, 'yerbatero'])->middleware('rol:yerbatero');

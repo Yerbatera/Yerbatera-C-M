@@ -58,14 +58,5 @@
             <a href="/balanza" class="text-green-800 font-semibold hover:underline">Abrir →</a>
         </div>
 
-        <!-- Tarjeta 7: Monitoreo Global -->
-        <div class="bg-white rounded-xl p-6 shadow hover:shadow-lg transition border border-gray-100">
-            <div class="bg-green-800 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl mb-4">📊</div>
-            <h2 class="text-xl font-bold text-green-900">Monitoreo Global</h2>
-            <p class="text-gray-500 text-sm">Supervisión</p>
-            <p class="text-xs text-gray-500 mb-6">Consulta el estado y avance de las tareas asignadas</p>
-            <a href="{{ route('monitoreo') }}" class="text-green-800 font-semibold hover:underline">Abrir →</a>
-        </div>
-
     </div>
 @endsection

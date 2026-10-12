@@ -6,10 +6,12 @@ use App\Http\Controllers\BalanzaController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\ProducerController;
 
 // --- LOGIN ---
 Route::get('/', function () { return view('login-roles'); });
 Route::post('/login', [LoginRolController::class, 'loginRapido'])->name('login.rapido');
+Route::get('/producer/search', [ProducerController::class, 'search'])->name('producer.search');
 
 // --- RUTAS PROTEGIDAS CON AUTH ---
 Route::middleware(['auth'])->group(function () {
@@ -25,4 +27,6 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('tareas', TareaController::class);
     Route::resource('procesos', ProcesoController::class);
     Route::resource('ventas', VentaController::class);
+    
+    
 });

@@ -23,8 +23,8 @@
         @csrf <input type="hidden" name="rol" value="operario"> <button style="background: #22c55e;">Ingresar como Operario</button>
     </form>
     
-    <form action="{{ route('login.rapido') }}" method="POST">
-        @csrf <input type="hidden" name="rol" value="yerbatero"> <button style="background: #9333ea;">Ingresar como Yerbatero</button>
+    <form action="{{ route('producer.search') }}" method="GET">
+        <button style="background: #7e22ce; color: white;;" type="submit">Ingresar como Yerbatero</button>
     </form>
 </body>
 </html>

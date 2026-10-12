@@ -16,6 +16,9 @@ Route::get('/', function () {
 Route::post('/login', [LoginRolController::class, 'loginRapido'])->name('login.rapido');
 Route::get('/producer/search', [ProducerController::class, 'search'])->name('producer.search');
 
+// -- Ruta Libre -- 
+Route::resource('ventas', VentaController::class);
+
 // --- RUTAS PROTEGIDAS CON AUTH ---
 Route::middleware(['auth'])->group(function () {
 
@@ -31,5 +34,5 @@ Route::middleware(['auth'])->group(function () {
     Route::resource('balanza', BalanzaController::class);
     Route::resource('tareas', TareaController::class);
     Route::resource('procesos', ProcesoController::class);
-    Route::resource('ventas', VentaController::class);
+    
 });

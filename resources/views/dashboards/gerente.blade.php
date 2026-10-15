@@ -15,7 +15,7 @@
             <div class="bg-orange-600 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl mb-4">📈</div>
             <h2 class="text-xl font-bold text-green-900">Producción y ventas</h2>
             <p class="text-orange-600 text-sm font-semibold mb-6">Gerente</p>
-            <a href="/ventas" class="text-orange-600 font-semibold hover:underline">Abrir →</a>
+            <a href="{{ route('gerencia.ventas') }}" class="text-orange-600 font-semibold hover:underline">Abrir →</a>
         </div>
 
         <!-- Tarjeta 2 -->
@@ -39,7 +39,7 @@
             <div class="bg-stone-600 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl mb-4">🌡️</div>
             <h2 class="text-xl font-bold text-green-900">Control productivo</h2>
             <p class="text-gray-500 text-sm mb-6">Procesos</p>
-            <a href="/procesos" class="text-stone-600 font-semibold hover:underline">Abrir →</a>
+            <a href="{{ route('gerencia.procesos') }}" class="text-stone-600 font-semibold hover:underline">Abrir →</a>
         </div>
 
         <!-- Tarjeta 5 -->
@@ -47,7 +47,7 @@
             <div class="bg-yellow-700 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl mb-4">🏪</div>
             <h2 class="text-xl font-bold text-green-900">Registro de ventas</h2>
             <p class="text-gray-500 text-sm mb-6">Ventas</p>
-            <a href="/ventas" class="text-yellow-700 font-semibold hover:underline">Abrir →</a>
+            <a href="{{ route('gerencia.ventas') }}" class="text-yellow-700 font-semibold hover:underline">Abrir →</a>
         </div>
 
         <!-- Tarjeta 6 -->

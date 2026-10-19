@@ -31,7 +31,7 @@
             <div class="bg-green-800 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl mb-4">⚖️</div>
             <h2 class="text-xl font-bold text-green-900">Cupones y remitos</h2>
             <p class="text-gray-500 text-sm mb-6">Balanza</p>
-            <a href="/balanza" class="text-green-800 font-semibold hover:underline">Abrir →</a>
+            <a href="{{ route('balanza.create') }}" class="text-green-800 font-semibold hover:underline">Abrir →</a>
         </div>
 
     </div>

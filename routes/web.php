@@ -8,10 +8,14 @@ use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\VentaController;
 use App\Http\Controllers\ProducerController;
 
+
+
 // --- LOGIN ---
 Route::get('/', function () { return view('login-roles'); });
 Route::post('/login', [LoginRolController::class, 'loginRapido'])->name('login.rapido');
 Route::get('/producer/search', [ProducerController::class, 'search'])->name('producer.search');
+Route::get('/balanza/crear', [BalanzaController::class, 'create'])->name('balanza.create');
+Route::post('/balanza/guardar', [BalanzaController::class, 'store'])->name('balanza.store');
 
 // --- RUTAS PROTEGIDAS CON AUTH ---
 Route::middleware(['auth'])->group(function () {

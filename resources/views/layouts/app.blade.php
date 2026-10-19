@@ -5,7 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yerbatera C&M</title>
     <!-- Importamos Tailwind CSS para el diseño -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     <style>
         /* Replicamos el fondo texturizado o color base de tus imágenes */
         body { background-color: #e5e7eb; background-image: url('https://www.transparenttextures.com/patterns/cubes.png'); }

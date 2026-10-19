@@ -2,14 +2,11 @@
 
 @section('contenido')
 <div class="container mx-auto px-4 py-6">
-    <div class="mb-6 flex justify-between items-center">
+    <div class="mb-6">
         <div>
             <h1 class="text-2xl font-bold text-gray-800">Monitoreo Global de Actividades</h1>
             <p class="text-gray-600 text-sm">Supervisión en tiempo real del estado de tareas asignadas a operarios</p>
         </div>
-        <a href="{{ route('gerente') }}" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-semibold transition">
-            ← Volver al Menú
-        </a>
     </div>
 
     <form method="GET" action="{{ route('monitoreo') }}" class="mb-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">

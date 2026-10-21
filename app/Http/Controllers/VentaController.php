@@ -2,25 +2,35 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use App\Models\Venta;
 use App\Models\Contacto;
 use App\Models\Lote;
-use Carbon\Carbon; // Para manejar la fecha actual
+use App\Models\Venta;
+use Carbon\Carbon;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\View\View;
 
 class VentaController extends Controller
 {
-    public function create()
+    public function index(): View
     {
-        // Traemos los clientes y los lotes que tengan peso mayor a 0
-        $clientes = Contacto::all(); 
-        $productos = Lote::where('peso', '>', 0)->get(); 
+        $ventas = Venta::with(['cliente', 'lote'])
+            ->orderByDesc('fecha')
+            ->paginate(15);
+
+        return view('ventas.index', compact('ventas'));
+    }
+
+    public function create(): View
+    {
+        $clientes = Contacto::all();
+        $productos = Lote::where('peso', '>', 0)->get();
 
         return view('ventas.create', compact('clientes', 'productos'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
             'cliente_id' => 'required|exists:contactos,id',
@@ -30,33 +40,30 @@ class VentaController extends Controller
         ]);
 
         try {
-            DB::transaction(function () use ($validated) {
+            DB::transaction(function () use ($validated): void {
                 $producto = Lote::findOrFail($validated['producto_id']);
 
                 if ($producto->peso < $validated['cantidad_kg']) {
                     throw new \Exception('No hay stock (peso) suficiente en este lote.');
                 }
 
-                // Guardar la venta usando exactamente los nombres de tu migración
-                $venta = new Venta();
-                $venta->fecha = Carbon::now(); // Fecha y hora actual
+                $venta = new Venta;
+                $venta->fecha = Carbon::now();
                 $venta->id_cliente = $validated['cliente_id'];
-                $venta->id_lote = $validated['producto_id']; // Apunta a id_lote
-                $venta->cantidad = $validated['cantidad_kg']; // Se llama cantidad
-                $venta->precio_kg = $validated['precio_kilo']; // Se llama precio_kg
-                $venta->total_venta = $validated['cantidad_kg'] * $validated['precio_kilo']; // Se llama total_venta
-                $venta->punto_venta = 'Casa Central'; // Valor por defecto obligatorio
+                $venta->id_lote = $validated['producto_id'];
+                $venta->cantidad = $validated['cantidad_kg'];
+                $venta->precio_kg = $validated['precio_kilo'];
+                $venta->total_venta = $validated['cantidad_kg'] * $validated['precio_kilo'];
+                $venta->punto_venta = 'Casa Central';
                 $venta->save();
 
-                // Descontar stock general de la columna 'peso' en lotes
                 $producto->peso -= $validated['cantidad_kg'];
                 $producto->save();
             });
 
             return redirect()->back()->with('success', '¡Venta registrada con éxito y stock descontado!');
-
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+        } catch (\Exception $exception) {
+            return redirect()->back()->with('error', $exception->getMessage());
         }
     }
 }

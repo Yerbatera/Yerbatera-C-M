@@ -8,10 +8,10 @@
 <body>
     <h2>Registrar nueva salida comercial</h2>
 
-    @if(session('success'))
+    @if (session('success'))
         <p style="color: green;">{{ session('success') }}</p>
     @endif
-    @if(session('error'))
+    @if (session('error'))
         <p style="color: red;">{{ session('error') }}</p>
     @endif
 
@@ -22,7 +22,7 @@
             <label for="cliente_id">Cliente (Distribuidora):</label><br>
             <select name="cliente_id" id="cliente_id" required>
                 <option value="" disabled selected>Seleccione un cliente...</option>
-                @foreach($clientes as $cliente)
+                @foreach ($clientes as $cliente)
                     <option value="{{ $cliente->id }}">{{ $cliente->nombre }}</option>
                 @endforeach
             </select>
@@ -32,7 +32,7 @@
             <label for="producto_id">Lote de origen:</label><br>
             <select name="producto_id" id="producto_id" required>
                 <option value="" disabled selected>Seleccione un lote...</option>
-                @foreach($productos as $producto)
+                @foreach ($productos as $producto)
                     <option value="{{ $producto->id }}">
                         Lote #{{ $producto->id }} (Stock: {{ $producto->peso }} kg)
                     </option>
@@ -66,12 +66,9 @@
         function calcularTotal() {
             const cantidad = parseFloat(inputCantidad.value) || 0;
             const precioKilo = parseFloat(inputPrecio.value) || 0;
-            
-            // Muestra el total multiplicando cantidad por precio ingresado
             inputTotal.value = (cantidad * precioKilo).toFixed(2);
         }
 
-        // Recalcular al instante cada vez que escriban en cantidad o en precio
         inputCantidad.addEventListener('input', calcularTotal);
         inputPrecio.addEventListener('input', calcularTotal);
     </script>

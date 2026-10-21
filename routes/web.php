@@ -2,13 +2,14 @@
 
 use App\Http\Controllers\BalanzaController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GerenciaController;
 use App\Http\Controllers\LoginRolController;
 use App\Http\Controllers\ProcesoController;
 use App\Http\Controllers\TareaController;
 use App\Http\Controllers\TurnoController;
 use App\Http\Controllers\VentaController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProducerController;
+use Illuminate\Support\Facades\Route;
 
 // --- LOGIN ---
 Route::get('/', function () {
@@ -23,15 +24,20 @@ Route::resource('ventas', VentaController::class);
 // --- RUTAS PROTEGIDAS CON AUTH ---
 Route::middleware(['auth'])->group(function () {
 
-    // Dashboards (Las pantallas de los botones verdes)
+    // Dashboards
     Route::get('/gerente', [DashboardController::class, 'gerente'])->middleware('rol:gerente')->name('gerente');
     Route::get('/administracion', [DashboardController::class, 'admin'])->middleware('rol:administracion');
     Route::get('/operario', [DashboardController::class, 'operario'])->middleware('rol:operario');
     Route::get('/yerbatero', [DashboardController::class, 'yerbatero'])->middleware('rol:yerbatero');
 
+    Route::middleware('rol:gerente')->prefix('gerencia')->name('gerencia.')->group(function () {
+        Route::get('/ventas', [VentaController::class, 'index'])->name('ventas');
+        Route::get('/procesos', [GerenciaController::class, 'procesos'])->name('procesos');
+    });
+
     Route::get('/monitoreo', [TareaController::class, 'index'])->name('monitoreo');
 
-    // Módulos compartidos (Adentro del controlador se filtra por rol)
+    // Módulos compartidos
     Route::resource('balanza', BalanzaController::class);
     Route::resource('tareas', TareaController::class)->only(['index']);
 
@@ -43,5 +49,5 @@ Route::middleware(['auth'])->group(function () {
     });
 
     Route::resource('procesos', ProcesoController::class);
-    
+    Route::resource('ventas', VentaController::class)->only(['index', 'create', 'store']);
 });

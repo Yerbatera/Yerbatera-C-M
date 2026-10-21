@@ -58,5 +58,15 @@
             <a href="/balanza" class="text-green-800 font-semibold hover:underline">Abrir →</a>
         </div>
 
+        <div class="bg-white rounded-xl p-6 shadow hover:shadow-lg transition border border-gray-100">
+            <div class="bg-green-800 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl mb-4">🗓️</div>
+            <h2 class="text-xl font-bold text-green-900">Horarios y tareas</h2>
+            <p class="text-gray-500 text-sm mb-6">Personal de producción</p>
+            <div class="flex flex-wrap gap-4">
+                <a href="{{ route('turnos.index') }}" class="text-green-800 font-semibold hover:underline">Turnos →</a>
+                <a href="{{ route('tareas.asignar') }}" class="text-green-800 font-semibold hover:underline">Asignar tarea →</a>
+            </div>
+        </div>
+
     </div>
 @endsection

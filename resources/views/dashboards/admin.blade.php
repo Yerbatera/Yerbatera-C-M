@@ -7,7 +7,7 @@
         <p class="text-gray-600 mt-1">Gestión de personal y operaciones · Seleccioná un módulo para continuar</p>
     </div>
 
-    <!-- Grilla de Módulos (3 Tarjetas) -->
+    <!-- Grilla de Módulos (4 Tarjetas) -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         
         <!-- Tarjeta 1 -->
@@ -32,6 +32,16 @@
             <h2 class="text-xl font-bold text-green-900">Cupones y remitos</h2>
             <p class="text-gray-500 text-sm mb-6">Balanza</p>
             <a href="/balanza" class="text-green-800 font-semibold hover:underline">Abrir →</a>
+        </div>
+
+        <div class="bg-white rounded-xl p-6 shadow hover:shadow-lg transition border border-gray-100">
+            <div class="bg-green-800 text-white w-12 h-12 rounded-lg flex items-center justify-center text-xl mb-4">🗓️</div>
+            <h2 class="text-xl font-bold text-green-900">Horarios y tareas</h2>
+            <p class="text-gray-500 text-sm mb-6">Personal de producción</p>
+            <div class="flex flex-wrap gap-4">
+                <a href="{{ route('turnos.index') }}" class="text-green-800 font-semibold hover:underline">Turnos →</a>
+                <a href="{{ route('tareas.asignar') }}" class="text-green-800 font-semibold hover:underline">Asignar tarea →</a>
+            </div>
         </div>
 
     </div>

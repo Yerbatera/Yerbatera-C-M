@@ -17,7 +17,7 @@
 
     <form action="{{ route('ventas.store') }}" method="POST">
         @csrf
-
+        
         <div style="margin-bottom: 15px;">
             <label for="cliente_id">Cliente (Distribuidora):</label><br>
             <select name="cliente_id" id="cliente_id" required>
@@ -66,7 +66,6 @@
         function calcularTotal() {
             const cantidad = parseFloat(inputCantidad.value) || 0;
             const precioKilo = parseFloat(inputPrecio.value) || 0;
-
             inputTotal.value = (cantidad * precioKilo).toFixed(2);
         }
 

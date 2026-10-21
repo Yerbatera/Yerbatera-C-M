@@ -3,13 +3,90 @@
 namespace App\Http\Controllers;
 
 use App\Models\Tarea;
+use App\Models\Turno;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class TareaController extends Controller
 {
+    public function create(): View
+    {
+        $empleados = User::query()
+            ->where('rol', 'operario')
+            ->orderBy('name')
+            ->get(['id', 'name']);
+
+        $tareas = Tarea::query()
+            ->with('operario:id,name')
+            ->orderByDesc('fecha_asignacion')
+            ->paginate(15);
+
+        return view('tareas.asignar', [
+            'empleados' => $empleados,
+            'tareas' => $tareas,
+        ]);
+    }
+
+    public function store(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'empleado' => ['required', 'string', 'max:255'],
+            'nombre' => ['required', 'string', 'max:255'],
+            'descripcion' => ['nullable', 'string'],
+            'fecha_asignacion' => ['required', 'date_format:Y-m-d'],
+        ]);
+
+        $nombreNormalizado = mb_strtolower(trim($validated['empleado']));
+        $empleadosCoincidentes = User::query()
+            ->where('rol', 'operario')
+            ->get(['id', 'name'])
+            ->filter(fn (User $empleado): bool => mb_strtolower(trim($empleado->name)) === $nombreNormalizado);
+
+        if ($empleadosCoincidentes->isEmpty()) {
+            return back()
+                ->withErrors(['empleado' => 'No hay un empleado registrado con ese nombre'])
+                ->withInput();
+        }
+
+        if ($empleadosCoincidentes->count() > 1) {
+            return back()
+                ->withErrors(['empleado' => 'Hay más de un empleado con ese nombre; diferenciá cuál querés asignar.'])
+                ->withInput();
+        }
+
+        $empleado = $empleadosCoincidentes->first();
+
+        $tieneTurno = Turno::query()
+            ->where('user_id', $empleado->id)
+            ->whereDate('fecha', $validated['fecha_asignacion'])
+            ->exists();
+
+        $tarea = new Tarea;
+        $tarea->nombre = $validated['nombre'];
+        $tarea->id_operario = $empleado->id;
+        $tarea->id_asignador = $request->user()->id;
+        $tarea->fecha_asignacion = $validated['fecha_asignacion'].' 00:00:00';
+        $tarea->estado = 'Pendiente';
+        $tarea->descripcion = $validated['descripcion'] ?? null;
+        $tarea->save();
+
+        $redirect = redirect()
+            ->route('tareas.asignar')
+            ->with('success', 'La tarea se asignó correctamente.');
+
+        if (! $tieneTurno) {
+            $redirect->with(
+                'warning',
+                'El empleado no tiene un turno asignado para esa fecha. La tarea se guardó igualmente.'
+            );
+        }
+
+        return $redirect;
+    }
+
     public function index(Request $request): View
     {
         $filters = $request->validate([

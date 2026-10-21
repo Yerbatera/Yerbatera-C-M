@@ -18,6 +18,7 @@
         <div class="font-bold text-xl">Yerbatera C&M</div>
         <div class="flex items-center gap-4">
             <span>Usuario: <b class="capitalize">{{ Auth::user()->name }}</b> ({{ Auth::user()->rol }})</span>
+            <a href="{{ url('/' . Auth::user()->rol) }}" class="bg-white/10 hover:bg-white/20 px-3 py-1 rounded text-sm font-semibold transition">Volver al Menú</a>
             <a href="/" class="bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm font-semibold transition">Salir</a>
         </div>
     </nav>

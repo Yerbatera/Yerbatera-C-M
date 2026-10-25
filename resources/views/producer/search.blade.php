@@ -7,9 +7,10 @@
     <title>Yerbatera C&M - Consulta de Entregas</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-slate-100 min-h-screen flex items-center justify-center p-4">
+<body class="bg-slate-100 min-h-screen flex flex-col justify-between">
 
-    <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+    <main class="flex-1 flex items-center justify-center p-4">
+        <div class="w-full max-w-2xl bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
         
         <!-- Header Aislado -->
         <div class="bg-emerald-800 text-white px-6 py-5">
@@ -84,7 +85,15 @@
                 </div>
             @endif
         </div>
-    </div>
+        </div>
+    </main>
+
+    <footer class="bg-green-700 text-green-50 border-t border-green-600 px-6 py-3.5 shadow-inner">
+        <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs font-medium">
+            <span>Yerbatera C&M · Sistema de Gestión y Control Productivo</span>
+            <span class="text-green-100/90">Establecimiento Secadero · {{ date('Y') }}</span>
+        </div>
+    </footer>
 
 </body>
 </html>

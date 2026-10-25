@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class TareaController extends Controller
 {
@@ -19,6 +20,12 @@ class TareaController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        $turnosProgramados = Turno::query()
+            ->with('user:id,name')
+            ->orderByDesc('fecha')
+            ->limit(30)
+            ->get();
+
         $tareas = Tarea::query()
             ->with('operario:id,name')
             ->orderByDesc('fecha_asignacion')
@@ -26,6 +33,7 @@ class TareaController extends Controller
 
         return view('tareas.asignar', [
             'empleados' => $empleados,
+            'turnosProgramados' => $turnosProgramados,
             'tareas' => $tareas,
         ]);
     }
@@ -37,6 +45,11 @@ class TareaController extends Controller
             'nombre' => ['required', 'string', 'max:255'],
             'descripcion' => ['nullable', 'string'],
             'fecha_asignacion' => ['required', 'date_format:Y-m-d'],
+            'relevancia' => ['nullable', Rule::in(['Alta', 'Media', 'Baja'])],
+            'repetir_semanal' => ['nullable', 'boolean'],
+            'semanas_repeticion' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'meses_repeticion' => ['nullable', 'integer', 'min:1', 'max:12'],
+            'origen' => ['nullable', 'string'],
         ]);
 
         $nombreNormalizado = mb_strtolower(trim($validated['empleado']));
@@ -64,17 +77,33 @@ class TareaController extends Controller
             ->whereDate('fecha', $validated['fecha_asignacion'])
             ->exists();
 
-        $tarea = new Tarea;
-        $tarea->nombre = $validated['nombre'];
-        $tarea->id_operario = $empleado->id;
-        $tarea->id_asignador = $request->user()->id;
-        $tarea->fecha_asignacion = $validated['fecha_asignacion'].' 00:00:00';
-        $tarea->estado = 'Pendiente';
-        $tarea->descripcion = $validated['descripcion'] ?? null;
-        $tarea->save();
+        $relevancia = $validated['relevancia'] ?? 'Media';
+        $repetirSemanal = (bool) ($validated['repetir_semanal'] ?? false);
+        $semanas = $repetirSemanal
+            ? (isset($validated['meses_repeticion']) ? ((int) $validated['meses_repeticion']) * 4 : (int) ($validated['semanas_repeticion'] ?? 4))
+            : 1;
+        $fechaBase = Carbon::parse($validated['fecha_asignacion']);
 
-        $redirect = redirect()
-            ->route('tareas.asignar')
+        for ($i = 0; $i < $semanas; $i++) {
+            $fechaTarea = $fechaBase->copy()->addWeeks($i)->toDateString();
+
+            $tarea = new Tarea;
+            $tarea->nombre = $validated['nombre'];
+            $tarea->id_operario = $empleado->id;
+            $tarea->id_asignador = $request->user()->id;
+            $tarea->fecha_asignacion = $fechaTarea.' 00:00:00';
+            $tarea->estado = 'Pendiente';
+            $tarea->relevancia = $relevancia;
+            $tarea->es_recurrente = $repetirSemanal;
+            $tarea->descripcion = $validated['descripcion'] ?? null;
+            $tarea->save();
+        }
+
+        $rutaDestino = ($validated['origen'] ?? null) === 'monitoreo'
+            ? route('monitoreo', ['dia' => $validated['fecha_asignacion']])
+            : route('tareas.asignar');
+
+        $redirect = redirect($rutaDestino)
             ->with('success', 'La tarea se asignó correctamente.');
 
         if (! $tieneTurno) {
@@ -85,6 +114,17 @@ class TareaController extends Controller
         }
 
         return $redirect;
+    }
+
+    public function actualizarEstado(Request $request, Tarea $tarea): RedirectResponse
+    {
+        $estadoActual = mb_strtolower((string) $tarea->estado);
+        $esCompletada = in_array($estadoActual, ['completada', 'completado', 'finalizada', 'finalizado'], true);
+
+        $tarea->estado = $esCompletada ? 'Pendiente' : 'Completada';
+        $tarea->save();
+
+        return back()->with('success', "Estado de tarea actualizado a {$tarea->estado}.");
     }
 
     public function index(Request $request): View
@@ -139,6 +179,7 @@ class TareaController extends Controller
         $tareas = $tareasQuery->paginate(15)->withQueryString();
 
         $dayNames = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        $fullDayNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         $weekDays = [];
 
         foreach ($dayNames as $offset => $dayName) {
@@ -146,6 +187,7 @@ class TareaController extends Controller
             $weekDays[] = [
                 'date' => $date,
                 'label' => $dayName,
+                'full_label' => $fullDayNames[$offset],
                 'count' => (int) $dailyCounts->get($date->toDateString(), 0),
             ];
         }
@@ -175,9 +217,48 @@ class TareaController extends Controller
             ->orderBy('name')
             ->get(['id', 'name']);
 
+        // Mapa de turnos de la semana actual (Lunes a Sábado) para el modal y la tabla
+        $turnosSemana = Turno::query()
+            ->whereBetween('fecha', [$weekStart->toDateString(), $weekEnd->toDateString()])
+            ->get();
+
+        $turnosMapa = $turnosSemana->keyBy(fn (Turno $t): string => $t->user_id.'_'.$t->fecha->toDateString());
+
+        $horariosSemanalesModal = [];
+        $operariosSinHorario = [];
+        foreach ($empleados as $empleadoItem) {
+            $diasEmpleado = [];
+            $tieneAlgunDia = false;
+            foreach ($weekDays as $wd) {
+                $fechaIso = $wd['date']->toDateString();
+                $turnoEncontrado = $turnosMapa->get($empleadoItem->id.'_'.$fechaIso);
+                if ($turnoEncontrado) {
+                    $tieneAlgunDia = true;
+                }
+                $diasEmpleado[] = [
+                    'fecha' => $fechaIso,
+                    'dia_corto' => $wd['label'],
+                    'dia_nombre' => $wd['full_label'],
+                    'fecha_corta' => $wd['date']->format('d/m'),
+                    'trabaja' => (bool) $turnoEncontrado,
+                    'entrada' => $turnoEncontrado?->horario_entrada ?? '06:00',
+                    'salida' => $turnoEncontrado?->horario_salida ?? '14:00',
+                    'descanso' => $turnoEncontrado?->descanso ?? null,
+                    'franja' => $turnoEncontrado?->franja_horaria ?? null,
+                ];
+            }
+            $horariosSemanalesModal[$empleadoItem->name] = $diasEmpleado;
+            if (! $tieneAlgunDia) {
+                $operariosSinHorario[] = $empleadoItem->name;
+            }
+        }
+
         return view('dashboards.monitoreo', [
             'tareas' => $tareas,
             'empleados' => $empleados,
+            'operariosSinHorario' => $operariosSinHorario,
+            'turnosMapa' => $turnosMapa,
+            'horariosSemanalesModal' => $horariosSemanalesModal,
             'weekStart' => $weekStart,
             'weekDays' => $weekDays,
             'selectedDate' => $selectedDate,

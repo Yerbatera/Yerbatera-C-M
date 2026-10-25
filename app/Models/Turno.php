@@ -16,6 +16,10 @@ class Turno extends Model
         'user_id',
         'fecha',
         'turno',
+        'franja_horaria',
+        'horario_entrada',
+        'horario_salida',
+        'descanso',
     ];
 
     protected function casts(): array

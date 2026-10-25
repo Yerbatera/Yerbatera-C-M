@@ -17,16 +17,17 @@ return new class extends Migration
             $table->unsignedBigInteger('id_proveedor');
             $table->unsignedBigInteger('id_operario');
             $table->unsignedBigInteger('id_materia');
+            $table->string('nro_ticket')->nullable();
             $table->string('remito')->nullable();
             $table->decimal('peso_bruto', 10, 2);
             $table->decimal('peso_tara', 10, 2);
             $table->decimal('descuento', 10, 2)->default(0);
             $table->decimal('peso_neto', 10, 2);
-            $table->decimal('importe_total', 12, 2);
+            $table->decimal('importe_total', 12, 2)->default(0);
             $table->string('concepto_descuento')->nullable();
             $table->foreign('id_proveedor')->references('id')->on('contactos');
             $table->foreign('id_operario')->references('id')->on('users');
-            $table->foreign('id_materia')->references('id')->on('materia_primas');
+            $table->foreign('id_materia')->references('id')->on('lotes');
             $table->timestamps();
         });
     }
